@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Profile } from './profile.entity';
 import { CreateProfileDto, FilterProfilesDto } from './profile.dto';
-import { v7 as uuidv7 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ProfilesService {
@@ -66,7 +66,7 @@ export class ProfilesService {
     const country_probability: number = topCountry.probability;
 
     const profile = this.profileRepo.create({
-      id: uuidv7(),
+      id: uuidv4(),
       name,
       gender,
       gender_probability,
