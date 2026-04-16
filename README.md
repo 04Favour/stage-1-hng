@@ -6,7 +6,7 @@ A RESTful API built with NestJS that enriches names using three external APIs, p
 
 ## Live Demo
 
-**Base URL:** `https://coming`
+**Base URL:** `https://stage-1-hng-r2lr.vercel.app/`
 
 ```
 POST   /api/profiles
