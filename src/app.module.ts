@@ -7,10 +7,10 @@ import { Profile } from './profile.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL! || "postgresql://postgres.nkyhkwtmzklrafzojgze:Imaabasi123$@aws-0-eu-west-1.pooler.supabase.com:6543/postgres",
+      url: "postgresql://postgres.nkyhkwtmzklrafzojgze:Imaabasi123$@aws-0-eu-west-1.pooler.supabase.com:6543/postgres",
       entities: [Profile],
       synchronize: true,
-      // ssl: { rejectUnauthorized: false },
+      ssl: { rejectUnauthorized: false },
     }),
     ProfilesModule,
   ],
