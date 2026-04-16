@@ -1,99 +1,239 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Profile Intelligence Service
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A RESTful API built with NestJS that enriches names using three external APIs, persists the results in a PostgreSQL database, and exposes clean endpoints for profile management.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## Live Demo
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Base URL:** `https://coming`
 
-## Project setup
-
-```bash
-$ pnpm install
+```
+POST   /api/profiles
+GET    /api/profiles
+GET    /api/profiles/:id
+DELETE /api/profiles/:id
 ```
 
-## Compile and run the project
+---
+
+## Tech Stack
+
+- **Framework:** NestJS (TypeScript)
+- **Database:** PostgreSQL (via TypeORM)
+- **Validation:** class-validator + class-transformer
+- **External APIs:** Genderize.io · Agify.io · Nationalize.io
+- **Deployment:** Vercel
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 18
+- pnpm (or npm/yarn)
+- A PostgreSQL database
+
+### Installation
+
+```bash
+git clone https://github.com/your-username/stage-1-task.git
+cd stage-1-task
+pnpm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the root:
+
+```env
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+PORT=3009
+```
+
+### Running Locally
 
 ```bash
 # development
-$ pnpm run start
+pnpm run start:dev
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+# production
+pnpm run build
+pnpm run start:prod
 ```
 
-## Run tests
+Server starts on `http://localhost:3009` by default.
 
-```bash
-# unit tests
-$ pnpm run test
+---
 
-# e2e tests
-$ pnpm run test:e2e
+## API Reference
 
-# test coverage
-$ pnpm run test:cov
+### `POST /api/profiles`
+
+Accepts a name, calls all three external APIs in parallel, and stores the enriched result. Idempotent — submitting the same name twice returns the existing record without creating a duplicate.
+
+**Request body:**
+```json
+{ "name": "ella" }
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+**Success `201`:**
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "019d96e7-b568-722a-bb80-5a6fc6b6add6",
+    "name": "ella",
+    "gender": "female",
+    "gender_probability": 0.99,
+    "sample_size": 1234,
+    "age": 46,
+    "age_group": "adult",
+    "country_id": "DK",
+    "country_probability": 0.85,
+    "created_at": "2026-04-14T10:32:00.000Z"
+  }
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+**Already exists `200`:**
+```json
+{
+  "status": "success",
+  "message": "Profile already exists",
+  "data": { "...existing profile..." }
+}
+```
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+### `GET /api/profiles`
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Returns all stored profiles. Supports optional case-insensitive query filters.
 
-## Support
+| Query param | Example |
+|-------------|---------|
+| `gender` | `?gender=male` |
+| `country_id` | `?country_id=NG` |
+| `age_group` | `?age_group=adult` |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+**Success `200`:**
+```json
+{
+  "status": "success",
+  "count": 6,
+  "data": [
+    {
+      "id": "019d96e7-b568-722a-bb80-5a6fc6b6add6",
+      "name": "ubong",
+      "gender": "male",
+      "age": 54,
+      "age_group": "adult",
+      "country_id": "NG"
+    }
+  ]
+}
+```
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### `GET /api/profiles/:id`
+
+Retrieves a single profile by UUID.
+
+**Success `200`:**
+```json
+{
+  "status": "success",
+  "data": {
+    "id": "019d96e7-b568-722a-bb80-5a6fc6b6add6",
+    "name": "emmanuel",
+    "gender": "male",
+    "gender_probability": 0.99,
+    "sample_size": 1234,
+    "age": 25,
+    "age_group": "adult",
+    "country_id": "NG",
+    "country_probability": 0.85,
+    "created_at": "2026-04-14T10:32:00.000Z"
+  }
+}
+```
+
+**Not found `404`:**
+```json
+{ "status": "error", "message": "Profile not found" }
+```
+
+---
+
+### `DELETE /api/profiles/:id`
+
+Deletes a profile by UUID. Returns `204 No Content` on success.
+
+---
+
+## Data Processing Rules
+
+| Field | Source | Logic |
+|-------|--------|-------|
+| `gender`, `gender_probability` | Genderize | Extracted directly |
+| `sample_size` | Genderize | Renamed from `count` |
+| `age` | Agify | Extracted directly |
+| `age_group` | Agify | 0–12 → child · 13–19 → teenager · 20–59 → adult · 60+ → senior |
+| `country_id`, `country_probability` | Nationalize | Country with the highest probability |
+| `id` | Generated | UUID v7 (time-sortable) |
+| `created_at` | Generated | UTC ISO 8601 timestamp |
+
+---
+
+## Error Handling
+
+All errors follow a consistent shape:
+
+```json
+{ "status": "error", "message": "<description>" }
+```
+
+| Status | Scenario |
+|--------|----------|
+| `400` | Missing or empty `name` |
+| `422` | `name` is not a string |
+| `404` | Profile not found |
+| `502` | Any external API returns null or empty data |
+
+502 messages identify the failing service explicitly: `Genderize returned an invalid response`, `Agify returned an invalid response`, or `Nationalize returned an invalid response`.
+
+---
+
+## Project Structure
+
+```
+src/
+├── main.ts                    # Bootstrap, CORS, global pipes & filters
+├── app.module.ts              # TypeORM config, module imports
+├── http-exception.filter.ts   # Unified { status, message } error shape
+└── profile/
+    ├── profile.module.ts      # Feature module
+    ├── profile.controller.ts  # Route handlers
+    ├── profile.service.ts     # Business logic & external API integration
+    ├── profile.entity.ts      # TypeORM entity (profiles table)
+    └── profile.dto.ts         # Input validation DTOs
+```
+
+---
+
+## CORS
+
+All responses include:
+
+```
+Access-Control-Allow-Origin: *
+```
+
+---
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-# stage-1-hng
+MIT
